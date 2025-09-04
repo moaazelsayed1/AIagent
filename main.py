@@ -3,10 +3,14 @@ import sys
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
+
 from functions.get_files_info import schema_get_files_info
 from functions.get_file_content import schema_get_file_content
 from functions.run_python_file import schema_run_python_file
 from functions.write_file import schema_write_file
+
+from dispatcher.call_function import call_function
+
 
 def main():
     if len(sys.argv) < 2:
@@ -29,13 +33,15 @@ def main():
     You can perform the following operations:
 
     - List files and directories
+    - Read file content
+    - Run Python files
+    - Write content to files
 
     All paths you provide should be relative to the working directory. 
     You do not need to specify the working directory in your function calls 
     as it is automatically injected for security reasons.
     """
 
-    # Register available functions
     available_functions = types.Tool(
         function_declarations=[
             schema_get_files_info,
@@ -50,27 +56,29 @@ def main():
         system_instruction=system_prompt,
     )
 
-    # Prepare user input
     messages = [
         types.Content(role="user", parts=[types.Part(text=sys.argv[1])]),
     ]
 
-    # Get response from model
     response = client.models.generate_content(
         model="gemini-2.0-flash-001",
         contents=messages,
         config=config,
     )
 
-    # Check for function calls or plain text
     if response.candidates and response.candidates[0].content.parts:
         for part in response.candidates[0].content.parts:
             if part.function_call:
-                print(f"Calling function: {part.function_call.name}({part.function_call.args})")
+                function_call = part.function_call
+
+                verbose_flag = len(sys.argv) > 2 and sys.argv[2] == "--verbose"
+
+                result = call_function(function_call, verbose=verbose_flag)
+
+                print(f"[Function result]\n{result.parts[0].function_response.response}\n")
+
             elif part.text:
                 print(part.text)
-    else:
-        print("No response from model.")
 
     # Optional verbose info
     if len(sys.argv) > 2 and sys.argv[2] == "--verbose":
@@ -78,6 +86,7 @@ def main():
         if response.usage_metadata:
             print("Prompt tokens:", response.usage_metadata.prompt_token_count)
             print("Response tokens:", response.usage_metadata.candidates_token_count)
+
 
 if __name__ == "__main__":
     main()
