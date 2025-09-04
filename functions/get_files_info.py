@@ -1,24 +1,27 @@
 import os
 
 def get_files_info(working_directory, directory="."):
-    # print(os.listdir(working_directory))
-    # print(os.path.abspath(directory))
-    # print(os.path.abspath(directory).split('/')[-1])
-    abs_path = os.path.abspath(directory)
-    working_directory_content = os.listdir(working_directory)
-    formatted_content = "Result for current directory:\n" if directory == "." else f"Result for '{directory}' directory:\n"
-    print(formatted_content)
+    try:
+        # print(os.listdir(working_directory))
+        # print(os.path.abspath(directory))
+        # print(os.path.abspath(directory).split('/')[-1])
+        abs_path = os.path.abspath(directory)
+        working_directory_content = os.listdir(working_directory)
+        formatted_content = "Result for current directory:\n" if directory == "." else f"Result for '{directory}' directory:\n"
+        print(formatted_content)
 
-    # print("CONTENT", working_directory_content)
-    # print(os.path.abspath(working_directory+ '/' +directory))
-    if directory != '.' and abs_path.split('/')[-1] not in working_directory_content:
-        return f'Error: Cannot list "{directory}" as it is outside the permitted working directory'
+        # print("CONTENT", working_directory_content)
+        # print(os.path.abspath(working_directory+ '/' +directory))
+        if directory != '.' and abs_path.split('/')[-1] not in working_directory_content:
+            return f'Error: Cannot list "{directory}" as it is outside the permitted working directory'
 
-    directory = os.path.abspath(working_directory+ '/' +directory)
-    if not os.path.isdir(directory):
-        return f'Error: "{directory}" is not a directory'
+        directory = os.path.abspath(working_directory+ '/' +directory)
+        if not os.path.isdir(directory):
+            return f'Error: "{directory}" is not a directory'
 
-    return content_format(directory)
+        return content_format(directory)
+    except Exception as e:
+        return f"Error: {str(e)}"
 
 
 def content_format(directory):
