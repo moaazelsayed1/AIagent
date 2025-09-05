@@ -11,7 +11,8 @@ All tool operations are constrained to the configured working directory to preve
 
 ## Demo
 
-- Video: [Watch the demo](aiagent-demo.mp4)
+- ![AI Agent Demo](aiagent-demo.gif)
+- Fallback: [Watch the full MP4](aiagent-demo.mp4)
 
 ## Requirements
 
